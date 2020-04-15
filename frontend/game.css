@@ -172,6 +172,10 @@
   background: #000000;
   color: #fff;
 }
+.board .black.revealed img {
+  filter: invert(100%);
+  -webkit-filter: invert(100%);
+}
 
 #remaining span {
   display: inline-block;
