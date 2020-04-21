@@ -16,6 +16,7 @@ export const Lobby = ({ defaultGameID }) => {
   const [words, setWords] = React.useState({ ...OriginalWords, 'Custom': [] });
   const [warning, setWarning] = React.useState(null);
   const [timer, setTimer] = React.useState(null);
+  const [enforceTimerEnabled, setEnforceTimerEnabled] = React.useState(false);
 
   let selectedWordCount = selectedWordSets
     .map(l => words[l].length)
@@ -29,7 +30,6 @@ export const Lobby = ({ defaultGameID }) => {
 
 
   function handleNewGame(e) {
-    console.log("herE");
     e.preventDefault();
     if (!newGameName) {
       return;
@@ -39,7 +39,6 @@ export const Lobby = ({ defaultGameID }) => {
       .map(l => words[l])
       .reduce((a, w) => a.concat(w), []);
 
-    console.log(combinedWordSet.length);
     if (combinedWordSet.length < 25) {
       setWarning('Selected wordsets do not include at least 25 words.');
       return;
@@ -52,9 +51,8 @@ export const Lobby = ({ defaultGameID }) => {
         word_set: combinedWordSet,
         create_new: false,
         timer_duration_ms:
-          timer && timer.length
-            ? timer[0] * 60 * 1000 + timer[1] * 1000
-            : 0,
+          timer && timer.length ? timer[0] * 60 * 1000 + timer[1] * 1000 : 0,
+        enforce_timer: timer && timer.length && enforceTimerEnabled,
       }),
       (g) => {
         const newURL = (document.location.pathname = '/' + newGameName);
@@ -100,9 +98,42 @@ export const Lobby = ({ defaultGameID }) => {
 
           { warning !== null ? (<div className="warning">{warning}</div>) : <div></div> }
 
-          <TimerSettings timer={timer} setTimer={setTimer} />
+          <TimerSettings
+            {...{
+              timer,
+              setTimer,
+              enforceTimerEnabled,
+              setEnforceTimerEnabled,
+            }}
+          />
 
           <div id="new-game-options">
+            <div id="wordsets">
+              <p className="instruction">You've selected <strong>{selectedWordCount}</strong> words.</p>
+              <div id="default-wordsets">
+                {Object.keys(OriginalWords).map((_label) => (
+                  <WordSetToggle
+                    key={_label}
+                    words={words[_label]}
+                    label={_label}
+                    selected={selectedWordSets.includes(_label)}
+                    onToggle={(e) => toggleWordSet(_label)}></WordSetToggle>
+                ))}
+              </div>
+          
+              <CustomWords
+                words={customWordsText}
+                onWordChange = {(w) => {
+                  setCustomWordsText(w);
+                  setWords({...words, 'Custom': (w
+                    .trim()
+                    .split(',')
+                    .map(w => w.trim())
+                    .filter(w => w.length > 0))});
+                }
+                selected = {selectedWordSets.includes("Custom")}
+                onToggle = {(e) => toggleWordSet("Custom")} />
+            </div>
           </div>
         </form>
       </div>

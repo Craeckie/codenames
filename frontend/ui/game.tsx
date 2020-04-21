@@ -119,8 +119,11 @@ export class Game extends React.Component {
     this.setState({ codemaster: role == 'codemaster' });
   }
 
-  public guess(e, idx, word) {
+  public guess(e, idx) {
     e.preventDefault();
+    if (this.state.codemaster && !this.state.settings.spymasterMayGuess) {
+      return; // ignore if player is the codemaster
+    }
     if (this.state.game.revealed[idx]) {
       return; // ignore if already revealed
     }
@@ -235,7 +238,7 @@ export class Game extends React.Component {
       statusClass = this.state.game.winning_team + ' win';
       status = this.state.game.winning_team + ' wins!';
     } else {
-      statusClass = this.currentTeam();
+      statusClass = this.currentTeam()+'-turn';
       status = this.currentTeam() + "'s turn";
     }
 
@@ -273,7 +276,7 @@ export class Game extends React.Component {
           roundStartedAt={this.state.game.round_started_at}
           timerDurationMs={this.state.game.timer_duration_ms}
           handleExpiration={() => {
-              // this.endTurn();
+              this.state.game.enforce_timer && this.endTurn();
           }}
           freezeTimer={!!this.state.game.winning_team}
         />
@@ -307,7 +310,7 @@ export class Game extends React.Component {
           </div>
           {endTurnButton}
         </div>
-        <div className="board">
+        <div className={"board " + statusClass}>
           {this.state.game.words.map((w, idx) => (
             <div
               key={idx}
@@ -315,6 +318,7 @@ export class Game extends React.Component {
                 'cell ' +
                 this.state.game.layout[idx] +
                 ' ' +
+                (this.state.codemaster && !this.state.settings.spymasterMayGuess ? 'disabled ' : '') +
                 (this.state.game.revealed[idx] ? 'revealed' : 'hidden-word')
               }
               onClick={e => this.guess(e, idx, w)}

@@ -35,10 +35,10 @@
   display: flex;
   justify-content: space-between;
 }
-.red .status-text {
+.red-turn .status-text {
   color: #d13030;
 }
-.blue .status-text {
+.blue-turn .status-text {
   color: #4183cc;
 }
 
@@ -121,6 +121,10 @@
   height: 18%;
 }
 
+.cell.disabled {
+  cursor: not-allowed !important;
+}
+
 .board {
   display: flex;
   flex-wrap: wrap;
@@ -180,6 +184,15 @@
   filter: invert(1);
   -webkit-filter: invert(1);
 }
+.player .board.win > .cell.red.hidden-word {
+  background: rgba(209, 48, 48, 0.4);
+}
+.player .board.win > .cell.blue.hidden-word {
+  background: rgba(65, 131, 204, 0.4);
+}
+.player .board.win > .cell.black.hidden-word {
+  background: rgba(153, 153, 153, 0.4);
+}
 
 #remaining span {
   display: inline-block;
@@ -235,6 +248,10 @@
 .dark-mode .codemaster .red.revealed {
   color: #fff;
 }
+.dark-mode .codemaster .black.hidden-word {
+  background: #444;
+}
+
 .dark-mode #end-turn-btn,
 .dark-mode #mode-toggle button {
   background: #444;
@@ -282,8 +299,9 @@
   bottom: 0;
   right: 0;
   background-color: white;
-  text-align: center;
 }
+
+.settings h2 { text-align: center; }
 
 .close-settings {
   position: fixed;
@@ -345,9 +363,8 @@
   text-align: right;
   font-size: 0.8em;
 }
-#coffee a {
-  color: #f0f0f0;
-}
+#coffee a { color: #CCC; }
+.dark-mode #coffee a { color: #555; }
 .color-blind #coffee a {
   color: #000;
   font-weight: bold;
