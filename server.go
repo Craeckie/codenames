@@ -131,7 +131,7 @@ func (s *Server) getGameLocked(gameID string) (*GameHandle, bool) {
 	if ok {
 		return gh, ok
 	}
-	gh = newHandle(newGame(gameID, randomState(s.defaultWords), 0, false), s.Store)
+	gh = newHandle(newGame(gameID, randomState(s.defaultWords), GameOptions{}), s.Store)
 	s.games[gameID] = gh
 	return gh, true
 }
@@ -151,7 +151,7 @@ func (s *Server) handleGameState(rw http.ResponseWriter, req *http.Request) {
 	s.mu.Lock()
 	gh, ok := s.getGameLocked(body.GameID)
 	if !ok {
-		gh = newHandle(newGame(body.GameID, randomState(s.defaultWords), 0, false), s.Store)
+		gh = newHandle(newGame(body.GameID, randomState(s.defaultWords), GameOptions{}), s.Store)
 		s.games[body.GameID] = gh
 		s.mu.Unlock()
 		writeGame(rw, gh)
@@ -270,17 +270,22 @@ func (s *Server) handleNextGame(rw http.ResponseWriter, req *http.Request) {
 			sort.Strings(words)
 		}
 
+		opts := GameOptions{
+			TimerDurationMS: request.TimerDurationMS,
+			EnforceTimer:    request.EnforceTimer,
+		}
+
 		var ok bool
 		gh, ok = s.games[request.GameID]
 		if !ok {
 			// no game exists, create for the first time
-			gh = newHandle(newGame(request.GameID, randomState(words), request.TimerDurationMS, request.EnforceTimer), s.Store)
+			gh = newHandle(newGame(request.GameID, randomState(words), opts), s.Store)
 			s.games[request.GameID] = gh
 		} else if request.CreateNew {
 			replacedCh := gh.replaced
 
 			nextState := nextGameState(gh.g.GameState)
-			gh = newHandle(newGame(request.GameID, nextState, request.TimerDurationMS, request.EnforceTimer), s.Store)
+			gh = newHandle(newGame(request.GameID, nextState, opts), s.Store)
 			s.games[request.GameID] = gh
 
 			// signal to waiting /game-state goroutines that the
@@ -333,7 +338,7 @@ func (s *Server) cleanupOldGames() {
 		if gh.g.WinningTeam != nil && gh.g.CreatedAt.Add(3*time.Hour).Before(time.Now()) {
 			delete(s.games, id)
 			log.Printf("Removed completed game %s\n", id)
-		} else if gh.g.CreatedAt.Add(12 * time.Hour).Before(time.Now()) {
+		} else if gh.g.CreatedAt.Add(72 * time.Hour).Before(time.Now()) {
 			delete(s.games, id)
 			log.Printf("Removed expired game %s\n", id)
 		}
