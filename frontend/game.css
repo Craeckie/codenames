@@ -1,6 +1,8 @@
 #game-view,
 .loading {
-  width: 900px;
+  width: 80%;
+  min-width: 600px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -129,7 +131,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  height: 700px;
+  height: 800px;
 }
 
 .board .hidden-word {
@@ -142,7 +144,8 @@
 .cell .word {
   vertical-align: middle;
   display: inline-block;
-  width: 90%;
+  max-width: 90%;
+  max-height: 90%;
 }
 
 .cell {
@@ -159,10 +162,7 @@
 }
 .codemaster .black.hidden-word {
   background: #777;
-}
-.codemaster .black.hidden-word img {
-  filter: invert(1);
-  -webkit-filter: invert(1);
+  outline: 10px solid black;
 }
 .codemaster .cell {
   font-weight: bold;
@@ -177,8 +177,8 @@
   color: #fff;
 }
 .board .black.revealed {
-  background: #000000;
-  color: #fff;
+  background: #666;
+  outline: 10px solid black;
 }
 .board .black.revealed img {
   filter: invert(1);
@@ -226,10 +226,6 @@
 .color-blind .blue.revealed {
   outline: 2px solid #4183cc;
   border: 1px solid white;
-}
-
-.color-blind .revealed .word {
-  text-decoration: underline;
 }
 
 .dark-mode {
